@@ -1,31 +1,12 @@
-import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtSql import *
-import sys
-from PyQt5.QtSql import QSqlDatabase
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+import pymysql
 
-class Demo(QWidget):
-    def __init__(self):
-        super(Demo, self).__init__()
-        self.db = None
-        self.db_connect()
+# 连接数据库
+conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', charset='utf8')
+cursor =conn.cursor()
 
-    def db_connect(self):
-        self.db = QSqlDatabase.addDatabase('QSQLITE')  # 1
-        self.db.setDatabaseName('./test.db')  # 2
-        if not self.db.open():  # 3
-            QMessageBox.critical(self, 'Database Connection', self.db.lastError().text())
+# 发送查看数据库指令
+cursor.execute('show databases')
+# 获取发送指令的结果
+result = cursor.fetchall()
+print(result)
 
-    def closeEvent(self, QCloseEvent):  # 4
-        self.db.close()
-
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    demo = Demo()
-    demo.show()
-    sys.exit(app.exec_())
