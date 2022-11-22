@@ -1,5 +1,6 @@
 from PyQt5.Qt import *
 import sys
+import pymysql
 
 
 class MyQWidget(QWidget):
@@ -45,7 +46,7 @@ class MyQWidget(QWidget):
 
         table_layout = QVBoxLayout() # 设置一个table的layout
 
-        table_widget = QTableWidget(0, 17)  # 这是0行16列的表单
+        table_widget = QTableWidget(0, 13)  # 这是0行16列的表单
         table_widget.setMinimumHeight(650)  # 这是该表单的高度为650
 
         # 表头设定
@@ -63,10 +64,6 @@ class MyQWidget(QWidget):
             {'title': 'Payment_time', },
             {'title': 'Settlement_time', },
             {'title': 'Type', },
-            {'title': '订单创建时间', },
-            {'title': '订单付款时间 ', },
-            {'title': '发货时间', },
-            {'title': '确认收货时间', },
         ]
         # 使用循环将表头应用到表单上
         for idx, info in enumerate(table_header):
@@ -76,8 +73,35 @@ class MyQWidget(QWidget):
             # table_widget.setColumnWidth(idx,200)
 
 
-        #表格初始化
+        conn = pymysql.connect(
+            host='a0f07344b6ea.c.methodot.com',
+            port=34101,
+            user='root',
+            password='a8787487##',
+            db='completone'
+        )
 
+        cursor = conn.cursor()
+        cursor.execute('select * from Alipay')
+        result = cursor.fetchall()
+
+        print(result)
+
+        cursor.close()
+        conn.close()
+
+        current_row_count = table_widget.rowCount() #获取目前表格有多少行
+        # print(current_row_count)
+        for row_list in result:
+            table_widget.insertRow(current_row_count)
+
+            for i,data in enumerate(row_list):
+                cell = QTableWidgetItem(str(data))
+                #不可修改
+                cell.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                table_widget.setItem(current_row_count,i,cell) #(第几行，第几列，值)
+
+            current_row_count += 1
 
 
         table_layout.addWidget(table_widget) # 将做好的Widget放到layout上
