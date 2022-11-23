@@ -1,6 +1,7 @@
 from PyQt5.Qt import *
 import sys
 import pymysql
+from PyQt5 import QtCore
 
 
 class MyQWidget(QWidget):
@@ -72,7 +73,7 @@ class MyQWidget(QWidget):
             table_widget.setHorizontalHeaderItem(idx, item)  # 使用index进行对列明赋值，但是不能直接写字符串，所以先用 QTableWidgetItem 进行设定。
             # table_widget.setColumnWidth(idx,200)
 
-
+        # 连接数据库
         conn = pymysql.connect(
             host='a0f07344b6ea.c.methodot.com',
             port=34101,
@@ -80,16 +81,16 @@ class MyQWidget(QWidget):
             password='a8787487##',
             db='completone'
         )
-
+        # 获取所有数据
         cursor = conn.cursor()
         cursor.execute('select * from Alipay')
         result = cursor.fetchall()
 
         print(result)
-
+        # 关闭数据库
         cursor.close()
         conn.close()
-
+        # 把获取的数据显示出来
         current_row_count = table_widget.rowCount() #获取目前表格有多少行
         # print(current_row_count)
         for row_list in result:
@@ -97,7 +98,7 @@ class MyQWidget(QWidget):
 
             for i,data in enumerate(row_list):
                 cell = QTableWidgetItem(str(data))
-                #不可修改
+                #设定单元格不可修改
                 cell.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 table_widget.setItem(current_row_count,i,cell) #(第几行，第几列，值)
 
@@ -108,20 +109,49 @@ class MyQWidget(QWidget):
 
         return table_layout
 
+
     #表单函数(搜索功能)
     def default_form(self):
 
         form_layout = QHBoxLayout() # 设置一个水平form的layout，让里面的widget都水平配置
 
         # 输入框
-        txt_order = QLineEdit()
-        txt_order.setPlaceholderText('请输入订单号/交易单号')
-        txt_order.setMinimumHeight(25)
-        form_layout.addWidget(txt_order)
+        search_order = QLineEdit()
+        search_order.setPlaceholderText('请输入订单号/交易单号')
+        search_order.setMinimumHeight(25)
+        form_layout.addWidget(search_order)
+
+
+        def showMessage(self):
+            print(search_order.text())
+            # 获取到输入的查询文档
+            se_num = search_order.text()
+            # 连接数据库
+
+            # 连接数据库
+            conn = pymysql.connect(
+                host='a0f07344b6ea.c.methodot.com',
+                port=34101,
+                user='root',
+                password='a8787487##',
+                db='completone'
+            )
+            # 获取所有数据
+            cursor = conn.cursor()
+            cursor.execute('select * from Alipay where Partner_transaction_id = %s ',[se_num])
+            result = cursor.fetchall()
+
+            print(result)
+            # 关闭数据库
+            cursor.close()
+            conn.close()
+
 
         # 搜索按钮
-
         btn_search = QPushButton('查询')
+        btn_search.clicked.connect(showMessage)
+
+
         form_layout.addWidget(btn_search)
 
         return form_layout
